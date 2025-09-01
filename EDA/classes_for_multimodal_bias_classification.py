@@ -1,5 +1,18 @@
-from torch.utils.data import Dataset, DataLoader
+import json
+from typing import Literal
 import torch
+from torch import nn
+from torch.utils.data import Dataset, DataLoader
+import torchinfo
+from transformers import AutoTokenizer, BertModel, AutoModel
+from PIL import Image
+import requests
+from torchvision import transforms
+from huggingface_hub import hf_hub_download
+from xgboost import XGBClassifier
+
+
+
 class Dataloader_Babe(Dataset):
     def __init__(self, dataframe, tokenizer, max_len):
         self.tokenizer = tokenizer
@@ -49,6 +62,14 @@ def train_ldr_for_babe(X_train,batch_size=2):
     
     training_loader = DataLoader(training_set, **train_params)
     return training_loader
+
+
+def valid_dataloader_nbs(dataset):
+    
+    test_loader_dataset = Dataloader_NBS_Plus(dataset, text_tokenizer, image_transform)
+
+    val_loader = DataLoader(test_loader_dataset, batch_size=4, shuffle=True)
+    return val_loader
 
 
 def valid_ldr_for_babe(X_test,batch_size=2):
@@ -180,3 +201,105 @@ def load_model(drop_proj=0.1,drop_fus=0.1):
     model.load_state_dict(checkpoint, strict=False)
 
     return model
+
+
+class EnsembleModel(torch.nn.Module):
+    def __init__(self,model_text_only,model_txt_and_img,valid_for_text,valid_for_imgandtxt,valid_loader_txt,valid_loader_textAndImage):
+        super().__init__()
+        ## Model Initialization
+        self.model_text_only = model_text_only
+        self.model_txt_and_img = model_txt_and_img
+
+  
+
+        #Dataloaders
+        self.valid_loader_textAndImage = valid_loader_textAndImage
+        self.valid_loader_txt = valid_loader_txt
+
+        self.valid_for_text = valid_for_text
+        self.valid_for_imgandtxt = valid_for_imgandtxt
+
+
+
+    def forward(self,input_text,input_img_and_txt):
+        probs_text,true = self.valid_for_text(self.model_text_only,self.valid_loader_txt(input_text))
+        probs_textAndImage,true_ = self.valid_for_imgandtxt(self.model_txt_and_img,self.valid_loader_textAndImage(input_img_and_txt))
+        
+
+        X = np.vstack([probs_textAndImage.reshape(-1), probs_text.reshape(-1)]).T
+        y = true
+
+        X_train, X_val, y_train, y_val= train_test_split(X, y, test_size=0.2, random_state=42)
+
+        model = XGBClassifier(
+            n_estimators=200,        
+            learning_rate=0.1,       
+            max_depth=3,             
+            random_state=42,
+            use_label_encoder=False,
+            eval_metric='logloss'
+        )
+
+
+        model.fit(X_train, y_train)
+        y_pred_val = model.predict(X_val)
+
+        return y_pred_val,y_val
+    
+
+
+    from tqdm import tqdm
+
+loss_function = torch.nn.CrossEntropyLoss()
+
+
+
+def valid_BABE(model, testing_loader,thres=0.30000000000000004):
+    prob_all = []
+    prob_target = []
+    model.eval()
+    with torch.no_grad():
+        for _, data in tqdm(enumerate(testing_loader, 0)):
+            ids = data['ids'].to(device, dtype = torch.long)
+            mask = data['mask'].to(device, dtype = torch.long)
+            token_type_ids = data['token_type_ids'].to(device, dtype=torch.long)
+            targets = data['targets'].reshape(-1,1).to(device, dtype = torch.float)
+
+            outputs = model(ids, mask, token_type_ids)
+
+            preds = torch.sigmoid(outputs) > thres    
+            prob = torch.sigmoid(outputs)
+            prob_all.append(prob)
+            prob_target.append(targets)
+            
+            
+    prob_all = torch.cat(prob_all).numpy()       
+    prob_target = torch.cat(prob_target).numpy()
+    return prob_all,prob_target
+
+def valid_NBS(model, testing_loader,thres=0.28301114938459293):
+    model.eval()
+    prob_all = []
+    prob_target = []
+    with torch.no_grad():
+        for _, data in tqdm(enumerate(testing_loader, 0)):
+            ids = data['input_ids'].to(device, dtype = torch.long)
+            mask = data['attention_mask'].to(device, dtype = torch.long)
+            pixel_values = data['pixel_values'].to(device, dtype = torch.float)
+            targets = data['labels'].reshape(-1,1).to(device, dtype = torch.float)
+
+            outputs = model(input_ids=ids,
+            attention_mask=mask,
+            pixel_values=pixel_values)
+
+            preds = torch.sigmoid(outputs) > thres    
+            prob = torch.sigmoid(outputs)
+            prob_all.append(prob)
+            prob_target.append(targets)
+            
+
+    prob_all = torch.cat(prob_all).numpy()       
+    prob_target = torch.cat(prob_target).numpy()
+    return prob_all,prob_target
+
+#https://stackoverflow.com/questions/62301674/extracting-labels-after-applying-softmax  --> For Probability, Weights and Labels
