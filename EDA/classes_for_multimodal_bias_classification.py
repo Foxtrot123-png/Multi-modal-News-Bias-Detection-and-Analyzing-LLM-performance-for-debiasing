@@ -10,16 +10,60 @@ import requests
 from torchvision import transforms
 from huggingface_hub import hf_hub_download
 from xgboost import XGBClassifier
+from torch.utils.data import Dataset, DataLoader
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
+class Dataloader_NBS_Plus(Dataset):
+    def __init__(self, dataframe, text_tokenizer, image_transform):
+        self.df = dataframe
+        self.text_tokenizer = text_tokenizer
+        self.image_transform = image_transform
+
+    def __len__(self):
+        return len(self.df)
+
+    def __getitem__(self, idx):
+        row = self.df.iloc[idx]
+        text = row['article_text']
+        image_path = row['image_path']
+
+        # tokenize text
+        text_inputs = self.text_tokenizer(
+            text, padding='max_length', truncation=True, max_length=512 , return_tensors='pt'
+        )
+        # transform image
+        image = Image.open(image_path).convert('RGB')
+        image_input = self.image_transform(image)
+
+        #label = torch.tensor(row['MultiModal_Label'])
+        
+        input_ids= text_inputs['input_ids'][0]
+        attention_mask= text_inputs['attention_mask']
+        pixel_values = image_input
+        labels =  int(row['MultiModal_Label'])
+        return {
+            'input_ids': torch.tensor(input_ids, dtype=torch.long),
+            'attention_mask': torch.tensor(attention_mask, dtype=torch.long),
+            'pixel_values': image_input,
+            'labels': torch.tensor(labels, dtype=torch.long)
+        }
+text_tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+image_transform = transforms.Compose([
+    transforms.Resize((224, 224)),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+])
+MAX_LEN = 512
 
 class Dataloader_Babe(Dataset):
-    def __init__(self, dataframe, tokenizer, max_len):
+    def __init__(self, dataframe, tokenizer, MAX_LEN):
         self.tokenizer = tokenizer
         self.text1 = dataframe['article'].values
         self.text2 = dataframe['text'].values
         self.targets = dataframe['label_bias'].values
-        self.max_len = max_len
+        self.MAX_LEN = 512
 
     def __len__(self):
         return len(self.text1)
@@ -33,7 +77,7 @@ class Dataloader_Babe(Dataset):
             text1,
             text2,
             add_special_tokens=True,
-            max_length=self.max_len,
+            max_length=self.MAX_LEN,
             padding='max_length',
             truncation=True,
             return_token_type_ids=True,
@@ -54,7 +98,7 @@ class Dataloader_Babe(Dataset):
 
 def train_ldr_for_babe(X_train,batch_size=2):
     
-    training_set = Dataloader_Babe(X_train, text_tokenizer, MAX_LEN)
+    training_set = Dataloader_Babe(X_train, text_tokenizer, MAX_LEN=512)
     train_params = {'batch_size': batch_size,
                 'shuffle': True,
                 'num_workers': 0
@@ -74,7 +118,7 @@ def valid_dataloader_nbs(dataset):
 
 def valid_ldr_for_babe(X_test,batch_size=2):
     
-    valid_set = Dataloader_Babe(X_test, text_tokenizer, MAX_LEN)
+    valid_set = Dataloader_Babe(X_test, text_tokenizer, MAX_LEN=512)
     valid_params = {'batch_size': batch_size,
                 'shuffle': True,
                 'num_workers': 0
@@ -248,7 +292,7 @@ class EnsembleModel(torch.nn.Module):
     
 
 
-    from tqdm import tqdm
+from tqdm import tqdm
 
 loss_function = torch.nn.CrossEntropyLoss()
 
@@ -303,3 +347,37 @@ def valid_NBS(model, testing_loader,thres=0.28301114938459293):
     return prob_all,prob_target
 
 #https://stackoverflow.com/questions/62301674/extracting-labels-after-applying-softmax  --> For Probability, Weights and Labels
+
+
+class EnsembleModel_for_single_pred(torch.nn.Module):
+    def __init__(self,model_text_only,model_txt_and_img,valid_for_text,valid_for_imgandtxt,valid_loader_txt,valid_loader_textAndImage):
+        super().__init__()
+        ## Model Initialization
+        self.model_text_only = model_text_only
+        self.model_txt_and_img = model_txt_and_img
+
+  
+
+        #Dataloaders
+        self.valid_loader_textAndImage = valid_loader_textAndImage
+        self.valid_loader_txt = valid_loader_txt
+
+        self.valid_for_text = valid_for_text
+        self.valid_for_imgandtxt = valid_for_imgandtxt
+
+
+
+    def predict(self,input_text,input_img_and_txt):
+        probs_text,true = self.valid_for_text(self.model_text_only,self.valid_loader_txt(input_text))
+        probs_text=float(probs_text)
+        if input_img_and_txt is not None:
+            probs_textAndImage,true_ = self.valid_for_imgandtxt(self.model_txt_and_img,self.valid_loader_textAndImage(input_img_and_txt))
+            probs_textAndImage=float(probs_textAndImage)
+            comb = round(0.8*probs_text+0.2*probs_textAndImage)>0.5
+        else:
+            comb=probs_text>0.5
+        
+
+        return comb
+    
+
