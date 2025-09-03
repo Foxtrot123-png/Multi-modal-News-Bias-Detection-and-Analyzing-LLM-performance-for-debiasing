@@ -1,54 +1,53 @@
-Multi-Modal Model for Biased News Classification and Debiasing
+Multi-Modal Model for Biased News Classification and Debiasing  
 
-Overview
+Overview  
 
-This project provides a deep learning–based system for detecting bias in news articles (text + images) and debiasing them using LLMs.
+This project provides a deep learning–based system for detecting bias in news articles (text + images) and debiasing them using LLMs.  
 
-Text-only classifier → BERT fine-tuned on BABE dataset.
+Text-only classifier → BERT fine-tuned on BABE dataset.  
 
-Multimodal classifier → BERT (text) + ResNet-34 (images) with cross-attention.
+Multimodal classifier → BERT (text) + ResNet-34 (images) with cross-attention.  
 
-Fusion model → Combines text-only and multimodal predictions using XGBoost.
+Fusion model → Combines text-only and multimodal predictions using XGBoost.  
 
-LLM Debiasing → GPT-2 and GEMINI used to rewrite biased news into more neutral text.
+LLM Debiasing → GPT-2 and GEMINI used to rewrite biased news into more neutral text.  
 
-Dashboard → FastAPI + Gradio app for on-the-fly bias detection.
+Dashboard → FastAPI + Gradio app for on-the-fly bias detection.  
 
 Datasets
 
-BABE → Text with expert-annotated bias labels.
+BABE → Text with expert-annotated bias labels.  
 
-GoodNews → NYT articles + images (for pretraining).
+GoodNews → NYT articles + images (for pretraining).  
+NewBiasDataset → Text + image pairs with bias labels (cleaned version: No_Corrupted_NBS.csv).  
 
-NewBiasDataset → Text + image pairs with bias labels (cleaned version: No_Corrupted_NBS.csv).
+Models & Files  
+  
+Text-only model → Babe_Dataset.ipynb  
 
-Models & Files
+Multimodal model → News_Media_Dataset.ipynb  
 
-Text-only model → Babe_Dataset.ipynb
+Fusion model → Fusion.ipynb  
 
-Multimodal model → News_Media_Dataset.ipynb
+LLM debiasing → LLMs.ipynb  
 
-Fusion model → Fusion.ipynb
+Dashboard → news_bias_app.py  
 
-LLM debiasing → LLMs.ipynb
+Saved models:  
 
-Dashboard → news_bias_app.py
+BABE_fine_tuned_model.pt  
 
-Saved models:
+fine_tuned_model_nbs.pt  
 
-BABE_fine_tuned_model.pt
+best_model_state.pt  
 
-fine_tuned_model_nbs.pt
+Performance  
 
-best_model_state.pt
+Text-only (BERT) → F1 = 0.82  
 
-Performance
+Multimodal (BERT + ResNet) → F1 = 0.65  
 
-Text-only (BERT) → F1 = 0.82
-
-Multimodal (BERT + ResNet) → F1 = 0.65
-
-Fusion (XGBoost) → F1 = 0.65
+Fusion (XGBoost) → F1 = 0.65  
 
 Installation
 git clone https://github.com/yourusername/news-bias-classifier.git  
