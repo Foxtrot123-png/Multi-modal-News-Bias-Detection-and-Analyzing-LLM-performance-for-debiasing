@@ -26,3 +26,23 @@ It contains the program for pre training the BERT transformer on the good news d
 This is where the checkpoints and the weights of the pre trained BERT model is save .
 
 ------------Babe_Dataset.IPYNB---------------
+This is the text only model using BERT.
+This file containes the EDA , Traning , Validation and the Parameter optimization of model.
+•	Accuracy: 75.37%
+•	Precision (Class 1 – Biased, Class 0 – Non-Biased): 0.83
+•	Recall (Class 1 - Biased, Class 0 – Non-Biased): 0.82
+•	F1-Score (Class 1 - Biased, Class 0 – Non-Biased): 0.82
+
+-----------BABE_fine_tuned_mdoel.pt--------------
+It is where the BABE mdoel(Text Only Model ) is saved .
+
+------------News_Media_Dataset.IPYNB-----------
+
+This is the Multimodal  model using BERT adn ResNet-34.
+It uses pre defined weights from a library commented in the code to prevent random initilization of the weightes of the fused model
+It uses cross attention for fusion
+This file containes the EDA , Traning , Validation and the Parameter optimization of model.
+•	Accuracy: 63.85%
+•	Precision (Class 1 - Biased, Class 0 – Non-Biased): 0.705
+•	Recall (Class 1 - Biased, Class 0 – Non-Biased): 0.597
+•	F1-Score (Class 1 - Biased, Class 0 – Non-Biased): 0.65
