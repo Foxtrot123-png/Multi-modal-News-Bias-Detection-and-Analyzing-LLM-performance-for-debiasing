@@ -70,7 +70,7 @@ Results & Conclusion
 
 Deep learning models effectively detect news bias.  
 
-Text-only BERT outperforms multimodal fusion on limited datasets.  
+Due to  limited dataset and computational power Multi Modal and ensembled performed bad
 
 LLMs moderately successful at debiasing while preserving grammar and content.  
 
