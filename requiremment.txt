@@ -1,0 +1,22 @@
+Core machine learning and deep learning libraries
+torch
+torchvision
+transformers
+huggingface-hub
+datasets
+Pillow
+xgboost
+scikit-learn
+hyperopt
+pandas
+numpy
+wordcloud
+matplotlib
+gradio
+
+Utility and visualization libraries
+torchinfo
+jupyter
+requests
+generativeai
+google
