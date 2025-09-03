@@ -133,7 +133,7 @@ with gr.Blocks() as demo:
         - **NBS+ Dataset**: Multimodal model (Text + Images)
 
         **About the Project:**  
-        This project aims to design and implement an AI-powered news bias detection system that leverages BERT, pre-trained on the GoodNews dataset. The system is fine-tuned in two ways: one using the BABE dataset for text-only bias detection, and the other combining BERT with a ResNet model, fine-tuned on the News Bias Plus (NBS+) dataset to create a multimodal model. Additionally, these models are used to test the performance of popular large language models (LLMs) in generating debiased news articles.
+        This project aims to design and implement an Deep Learning powered news bias detection system that leverages BERT, pre-trained on the GoodNews dataset. The system is fine-tuned in two ways: one using the BABE dataset for text-only bias detection, and the other combining BERT with a ResNet model, fine-tuned on the News Bias Plus (NBS+) dataset to create a multimodal model. Additionally, these models are used to test the performance of popular large language models (LLMs) in generating debiased news articles.
 
         Key features of the project include:
 
@@ -143,7 +143,7 @@ with gr.Blocks() as demo:
 
            - Training and evaluation of machine learning and deep learning models using extensive classification metrics such as Accuracy, Precision, Recall, F1-score, and ROC AUC.
 
-           - Fusion of text and multimodal models, combining a text-based bias classifier with an image+caption bias classifier to create a more robust multimodal bias detection system.
+           - Fusion of text and multimodal models combining a text-based bias classifier with an image+caption bias classifier to create a more robust multimodal bias detection system.
 
            - Evaluation of popular LLMs for generating debiased versions of news articles.
 
