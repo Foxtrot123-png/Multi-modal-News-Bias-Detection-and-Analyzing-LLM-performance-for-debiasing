@@ -51,28 +51,28 @@ Multimodal (BERT + ResNet) → F1 = 0.65
 Fusion (XGBoost) → F1 = 0.65
 
 Installation
-git clone https://github.com/yourusername/news-bias-classifier.git
-cd news-bias-classifier
-pip install -r requirements.txt
+git clone https://github.com/yourusername/news-bias-classifier.git  
+cd news-bias-classifier  
+pip install -r requirements.txt  
 
-Usage
+Usage  
 
-Run notebooks for training:
+Run notebooks for training:  
 
-jupyter notebook Babe_Dataset.ipynb
-jupyter notebook News_Media_Dataset.ipynb
+jupyter notebook Babe_Dataset.ipynb  
+jupyter notebook News_Media_Dataset.ipynb  
 
 
-Run dashboard:
+Run dashboard:  
 
-python news_bias_app.py
+python news_bias_app.py  
 
-Results & Conclusion
+Results & Conclusion  
 
-Deep learning models effectively detect news bias.
+Deep learning models effectively detect news bias.  
 
-Text-only BERT outperforms multimodal fusion on limited datasets.
+Text-only BERT outperforms multimodal fusion on limited datasets.  
 
-LLMs moderately successful at debiasing while preserving grammar and content.
+LLMs moderately successful at debiasing while preserving grammar and content.  
 
-FastAPI+Gradio app demonstrates practical deployment.
+FastAPI+Gradio app demonstrates practical deployment.  
