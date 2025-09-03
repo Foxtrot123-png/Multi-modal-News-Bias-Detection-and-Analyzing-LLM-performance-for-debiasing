@@ -1,118 +1,78 @@
-Multi-Modal Model for Biased News Classification and Debiasing it using LLMs
+Multi-Modal Model for Biased News Classification and Debiasing
 
-Project Overview:
+Overview
 
-In today’s digital age, getting information is easier than ever, but differentiating between factual reporting from biased narratives remains a challenge. This project tells how deep learning–based Natural Language Processing (NLP) can classify biased versus unbiased news articles. The primary objective is to design a detailed news bias detection system, while the secondary objective shows how Large Language Models (LLMs) can be applied for debiasing through prompting.
-The methodology involved the pre-training of the Transformer Model (Bert) on GoodNews dataset and then using this pre-trained model as a base for the Text Bias Classification Model. This pre-trained model is also used with ResNet Model to create a model for multimodal classifier. After that LLMs were used for debiasing news articles. Exploratory Data Analysis (EDA) was conducted to understand feature distributions and means while model performance was assessed using Accuracy, Precision, Recall, and F1-Score metrics.
-Results show that while the ensemble model has better than baseline performance (F1 = 0.653) , the text-only model achieved an F1 of 0.82 which is comparable to state-of-the-art classifiers. LLMs also showed moderate debiasing capability considering the similarity and grammatical accuracy of the generated text. This project highlights the potential of combining pre-trained transformers, multimodal fusion, and LLM prompting for practical bias detection and debiasing.
+This project provides a deep learning–based system for detecting bias in news articles (text + images) and debiasing them using LLMs.
 
+Text-only classifier → BERT fine-tuned on BABE dataset.
 
+Multimodal classifier → BERT (text) + ResNet-34 (images) with cross-attention.
 
+Fusion model → Combines text-only and multimodal predictions using XGBoost.
 
+LLM Debiasing → GPT-2 and GEMINI used to rewrite biased news into more neutral text.
 
-Datasets:
-The project utilizes 3 distinct  for training and evaluation:
+Dashboard → FastAPI + Gradio app for on-the-fly bias detection.
 
-BABE Dataset: A publicly available dataset from Kaggle containing news article text with expert-annotated bias labels. This dataset was used for training the text-only model.
+Datasets
 
-Good News Dataset: Retrieved from the New York Times API, this dataset contains unlabelled images and their associated news articles. It was used for pre-training the BERT .
+BABE → Text with expert-annotated bias labels.
 
-NewBiasDataset: Available on Zenodo, this dataset provides both images and text with their respective bias labels.
+GoodNews → NYT articles + images (for pretraining).
 
-No_Corrupted_NBS.csv: A clean version of the NewBiasDataset which does not contain path to corrupted images.
+NewBiasDataset → Text + image pairs with bias labels (cleaned version: No_Corrupted_NBS.csv).
 
+Models & Files
 
+Text-only model → Babe_Dataset.ipynb
 
+Multimodal model → News_Media_Dataset.ipynb
 
+Fusion model → Fusion.ipynb
 
+LLM debiasing → LLMs.ipynb
 
+Dashboard → news_bias_app.py
 
-Text-Only Model (BABE):
-File: Babe_Dataset.IPYNB
+Saved models:
 
-Model: BERT Transformer
+BABE_fine_tuned_model.pt
 
-Methodology: This file contains  EDA, training, validation, and hyperparameter optimization.
+fine_tuned_model_nbs.pt
 
-Performance Metrics:
+best_model_state.pt
 
-Accuracy: 75.37%
+Performance
 
-Precision (Biased/Non-Biased): 0.83
+Text-only (BERT) → F1 = 0.82
 
-Recall (Biased/Non-Biased): 0.82
+Multimodal (BERT + ResNet) → F1 = 0.65
 
-F1-Score (Biased/Non-Biased): 0.82
+Fusion (XGBoost) → F1 = 0.65
 
-Multimodal Model:
-File: News_Media_Dataset.IPYNB
+Installation
+git clone https://github.com/yourusername/news-bias-classifier.git
+cd news-bias-classifier
+pip install -r requirements.txt
 
-Model: BERT (Text) + ResNet-34 (Image)
+Usage
 
-Methodology: A multimodal approach using pre-trained weights to prevent random initialization. The model employs cross-attention for the fusion of text and image features. This file also covers EDA, training, validation, and hyperparameter optimization.
+Run notebooks for training:
 
-Performance Metrics:
-
-Accuracy: 63.85%
-
-Precision (Biased/Non-Biased): 0.705
-
-Recall (Biased/Non-Biased): 0.597
-
-F1-Score (Biased/Non-Biased): 0.65
-
-Model Fusion:
-File: Fusion.IPYNB
-
-Methodology: Predictions from the text-only and multimodal models are combined using an XGBoost classifier to produce a final, combined prediction.
-
-Performance Metrics:
-
-Precision (Biased/Non-Biased): 0.698
-
-Recall (Biased/Non-Biased): 0.61
-
-F1-Score (Biased/Non-Biased): 0.65
-LLM Debiasing:
-File: LLMs.IPYNB
-
-Models: GPT-2 and GEMINI
-
-Methodology: This file is dedicated to evaluating the debiasing capabilities of LLMs, assessing their performance in transforming biased text into more neutral content.
+jupyter notebook Babe_Dataset.ipynb
+jupyter notebook News_Media_Dataset.ipynb
 
 
+Run dashboard:
 
+python news_bias_app.py
 
+Results & Conclusion
 
-Saved Models:
+Deep learning models effectively detect news bias.
 
-BABE_fine_tuned_mdoel.pt: The saved weights for the text-only BERT model.
+Text-only BERT outperforms multimodal fusion on limited datasets.
 
-Model_config: Checkpoints and weights for the pre-trained BERT model.
+LLMs moderately successful at debiasing while preserving grammar and content.
 
-fine_tuned_model_nbs.pt: The saved weights of the fine-tuned multimodal model from News_Media_Dataset.ipynb.
-
-best_model_state.pt: The best model retrieved during the hyperparameter tuning of the multimodal model on the NewBiasDataset.
-
-
-
-
-
-Dashboard:
-File: news_bias_app.py
-
-Functionality:  dashboard for on-the-fly bias detection. For single-input predictions, it uses parametric concatenation of the models predictions instead of XGBoost. For batch inputs, the XGBoost fusion model is used.
-
-
-
-Conclusion:
-
-This project set out to investigate whether deep learning models can be used for new Bias classification and whether we can use LLM for the debiasing tasks.
-Through detailed model development, evaluation, and visualisation, the project
-demonstrated that:
-•
-Deep learning models are really good at identifying bias in articles both text and image given that they are trained on a suitable amount of data and for a suitable time for them to understand the data.
-•
-Probabilistic Hyperparameter tuning method proved really well in increasing the efficiency of the models.
-•
-Practical feasibility was demonstrated through the development of an interactive FastAPI+Gardio dashboard.
+FastAPI+Gradio app demonstrates practical deployment.
