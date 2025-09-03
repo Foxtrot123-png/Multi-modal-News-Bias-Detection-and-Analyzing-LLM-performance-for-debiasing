@@ -103,3 +103,16 @@ File: news_bias_app.py
 
 Functionality:  dashboard for on-the-fly bias detection. For single-input predictions, it uses parametric concatenation of the models predictions instead of XGBoost. For batch inputs, the XGBoost fusion model is used.
 
+
+
+Conclusion:
+
+This project set out to investigate whether deep learning models can be used for new Bias classification and whether we can use LLM for the debiasing tasks.
+Through detailed model development, evaluation, and visualisation, the project
+demonstrated that:
+•
+Deep learning models are really good at identifying bias in articles both text and image given that they are trained on a suitable amount of data and for a suitable time for them to understand the data.
+•
+Probabilistic Hyperparameter tuning method proved really well in increasing the efficiency of the models.
+•
+Practical feasibility was demonstrated through the development of an interactive FastAPI+Gardio dashboard.
