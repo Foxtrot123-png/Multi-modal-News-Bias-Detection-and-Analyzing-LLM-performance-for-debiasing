@@ -2,7 +2,7 @@ Multi-Modal Model for Biased News Classification and Debiasing
 
 Overview  
 
-This project provides a deep learning–based system for detecting bias in news articles (text + images) and debiasing them using LLMs.  
+This project provides a deep learning–based system for detecting bias in news articles (text only model +multimodal model(text+ images)) and debiasing them using LLMs.  
 
 Text-only classifier → BERT fine-tuned on BABE dataset.  
 
