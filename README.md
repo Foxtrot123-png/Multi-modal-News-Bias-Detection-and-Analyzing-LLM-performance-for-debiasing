@@ -8,7 +8,7 @@ Text-only classifier → BERT fine-tuned on BABE dataset.
 
 Multimodal classifier → BERT (text) + ResNet-34 (images) with cross-attention.  
 
-Fusion model → Combines text-only and multimodal predictions using XGBoost.  
+Fusion model → Combines text-only and multimodal predictions using XGBoost for batch prediction or Concatenation for Single Values Prediction
 
 LLM Debiasing → GPT-2 and GEMINI used to rewrite biased news into more neutral text.  
 
