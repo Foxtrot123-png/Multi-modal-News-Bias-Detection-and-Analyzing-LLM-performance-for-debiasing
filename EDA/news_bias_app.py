@@ -253,15 +253,15 @@ def predict_bias(article_text, image_pil=None, show_individual=True, show_explan
         final_conf, final_pred = babe_conf, babe_pred
 
     label = "Biased" if final_pred else "Not Biased"
-    confidence_text = f"Model is {final_conf*100:.2f}% confident"
+    confidence_text = f"Probability Biased: {final_conf*100:.2f}% "
     wordcloud_fig = generate_wordcloud_fig(article_text) if show_explanations else None
     babe_result = None
     nbs_result = None
 
     if show_individual:
-        babe_result = f"Text Model: {['Not Biased','Biased'][babe_pred]} ({babe_conf*100:.2f}%)"
+        babe_result = f"Text Model: ({babe_conf*100:.2f}% Biased-> Prediction:{['Not Biased','Biased'][babe_pred]} )"
         if image_pil:
-            nbs_result = f"Multimodal Model: {['Not Biased','Biased'][nbs_pred]} ({nbs_conf*100:.2f}%)"
+            nbs_result = f"Multimodal Model: ({nbs_conf*100:.2f}% Biased -> Prediction:{['Not Biased','Biased'][nbs_pred]} )"
 
 
     df_gpt2 = pd.DataFrame({'index': ['cosine_score','error_grammer', 'debiased_text']})
@@ -363,7 +363,7 @@ with gr.Blocks() as demo:
             show_debiasing = gr.Checkbox(label="Show Debiased Articles", value=False)
         predict_button = gr.Button("Predict Bias")
         final_opt = gr.Label(label="Final Prediction")
-        conf = gr.Textbox(label="Confidence Score")
+        conf = gr.Textbox(label="Probability")
         wordcloud_opt = gr.Plot(label="Word Cloud")
         babe_opt = gr.Textbox(label="Text-only Model Result")
         nbs_opt = gr.Textbox(label="Multimodal Model Result")
