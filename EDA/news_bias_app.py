@@ -112,9 +112,8 @@ model.config.pad_token_id = tokenizer.eos_token_id
 def run_gpt2(prompt_type,article):
     prompt = build_prompt(prompt_type,article)
     inputs = tokenizer(prompt, return_tensors="pt",truncation=True,
-        max_length=1024,
-        padding="max_length" )
-    output = model.generate(**inputs, max_new_tokens=512)
+        max_length=800)
+    output = model.generate(**inputs, max_new_tokens=200)
     return tokenizer.decode(output[0], skip_special_tokens=True)
 
 
@@ -242,12 +241,12 @@ def predict_bias(article_text, image_pil=None, show_individual=True, show_explan
         return "Please enter some text!", "N/A", None, None, None
 
     babe_conf = predict_babe(model_BABE, article_text)
-    babe_pred = babe_conf > 0.5
+    babe_pred = babe_conf > 0.4
 
     if image_pil is not None:
         nbs_conf = predict_nbs(model_NBS, article_text, image_pil)
-        nbs_pred = nbs_conf > 0.5
-        final_conf = 0.8 * babe_conf + 0.2 * nbs_conf
+        nbs_pred = nbs_conf > 0.6179447412814503
+        final_conf = 0.5 * babe_conf + 0.5 * nbs_conf
         final_pred = final_conf > 0.5
     else:
         nbs_conf, nbs_pred = 0.0, False
@@ -305,7 +304,7 @@ def predict_bias(article_text, image_pil=None, show_individual=True, show_explan
             df_gemini.loc[df_gemini['index'] == 'debiased_text', i] = gemini_d
 
 
-            df_gpt2.loc[df_gpt2['index'] == 'cosine_score', i] =scor_gpt2
+            df_gpt2.loc[df_gpt2['index'] == 'cosine_score', i] =scor_gpt2 
             df_gpt2.loc[df_gpt2['index'] == 'error_grammer', i] =er_count_gpt2
             df_gpt2.loc[df_gpt2['index'] == 'debiased_text', i] = gpt2_d
     return label, confidence_text, wordcloud_fig, babe_result, nbs_result,df_gemini,df_gpt2
@@ -368,8 +367,8 @@ with gr.Blocks() as demo:
         wordcloud_opt = gr.Plot(label="Word Cloud")
         babe_opt = gr.Textbox(label="Text-only Model Result")
         nbs_opt = gr.Textbox(label="Multimodal Model Result")
-        df_gemini = gr.Dataframe(label="Gemini Results", headers=["index", "zero", "single", "multi", "role"])
-        df_gpt2 = gr.Dataframe(label="GPT-2 Debiasing Results", headers=["index", "zero", "single", "multi", "role"])
+        df_gemini = gr.Dataframe(label="Gemini Results", headers=["index", "zero", "single", "multi", "role"]) if show_debiasing else None
+        df_gpt2 = gr.Dataframe(label="GPT-2 Debiasing Results", headers=["index", "zero", "single", "multi", "role"]) if show_debiasing else None
         predict_button.click(
             fn=predict_bias,
             inputs=[article_input, image_input, show_individual, show_explanations,show_debiasing],
