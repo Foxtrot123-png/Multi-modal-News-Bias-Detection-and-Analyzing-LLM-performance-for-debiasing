@@ -130,8 +130,8 @@ def valid_ldr_for_babe(X_test,batch_size=2):
 class BertClass(torch.nn.Module):
     def __init__(self,drop=0.1):
         super(BertClass, self).__init__()
-        #self.l1 = BertModel.from_pretrained("E:\\GitHub\\Multi-Model-Bias-Detection-and-Debiasing-the-News\\EDA\\Model_config")
-        self.l1 = BertModel.from_pretrained("/Users/ritikrmohapatra/Documents/GitHub/Multi-Model-Bias-Detection-and-Debiasing-the-News/EDA/Model_config")
+        self.l1 = BertModel.from_pretrained("Model_config")
+        #self.l1 = BertModel.from_pretrained("/Users/ritikrmohapatra/Documents/GitHub/Multi-Model-Bias-Detection-and-Debiasing-the-News/EDA/Model_config")
         self.pre_classifier = torch.nn.Linear(768, 768)
         self.dropout = torch.nn.Dropout(p=drop)
         self.classifier = torch.nn.Linear(768, 1)
@@ -222,8 +222,8 @@ def load_model(drop_proj=0.1,drop_fus=0.1):
     
     config = {
         "model_type": "multimodal-bias-classifier", 
-        #"text_encoder_id_or_path": "E:\\GitHub\\Multi-Model-Bias-Detection-and-Debiasing-the-News\\EDA\\Model_config", #For Windows
-        "text_encoder_id_or_path": "/Users/ritikrmohapatra/Documents/GitHub/Multi-Model-Bias-Detection-and-Debiasing-the-News/EDA/Model_config",
+        "text_encoder_id_or_path": "Model_config", #For Windows
+        #"text_encoder_id_or_path": "/Users/ritikrmohapatra/Documents/GitHub/Multi-Model-Bias-Detection-and-Debiasing-the-News/EDA/Model_config",
         "image_encoder_id_or_path": "resnet34", 
         "projection_dim": 768, 
         "num_classes": 1,

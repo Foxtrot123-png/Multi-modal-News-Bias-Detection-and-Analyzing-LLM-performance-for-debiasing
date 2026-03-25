@@ -163,3 +163,21 @@ EDA/ensemble_model.pth
 EDA/ensemble_model.pth
 EDA/ensemble_model.pth
 EDA/ensemble_model.pth
+
+# Ignore the environment file containing API keys
+.env
+
+# Ignore Python cache and virtual environments
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Ignore large model files (Optional, if you host them elsewhere)
+*.pt
+*.bin
+*.pth
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db

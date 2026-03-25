@@ -1,3 +1,5 @@
+import os
+
 import torch
 import pandas as pd
 from torch import nn
@@ -25,7 +27,7 @@ image_transform = transforms.Compose([
 
 model_BABE = cfmbc.BertClass()
 checkpoint_bert = torch.load(
-    "/Users/ritikrmohapatra/Documents/GitHub/Multi-Model-Bias-Detection-and-Debiasing-the-News/EDA/BABE_fine_tuned_model.pt",
+    "BABE_fine_tuned_model.pt",
     map_location="cpu"
 )
 model_BABE.load_state_dict(checkpoint_bert, strict=False)
@@ -35,7 +37,7 @@ if device.type == "cuda":
 
 model_NBS = cfmbc.load_model(drop_proj=0.43797, drop_fus=0.08885)
 checkpoint_nbs = torch.load(
-    "/Users/ritikrmohapatra/Documents/GitHub/Multi-Model-Bias-Detection-and-Debiasing-the-News/EDA/fine_tuned_model_nbs.pt",
+    "fine_tuned_model_nbs.pt",
     map_location="cpu"
 )
 model_NBS.load_state_dict(checkpoint_nbs, strict=False)
@@ -124,7 +126,9 @@ import google.generativeai as genai
 def gemini_lm(prompt_type,article):
     prompt = build_prompt(prompt_type,article)
     import google.generativeai as genai
-    genai.configure(api_key="AIzaSyDNH9TmB1bzdcJGO3yI931Js7W2HJsA5Y4")
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        return "Error: Gemini API Key not found in .env file."
 
     model = genai.GenerativeModel(model_name="gemini-1.5-flash")
     response = model.generate_content(prompt)
@@ -135,7 +139,7 @@ import random
 
 index = random.randint(1, 2185)
 
-nbs = pd.read_csv('/Users/ritikrmohapatra/Documents/GitHub/Multi-Model-Bias-Detection-and-Debiasing-the-News/EDA/No_Corrupted_NBS.csv')
+nbs = pd.read_csv('No_Corrupted_NBS.csv')
 
 
 
@@ -224,7 +228,8 @@ def cosine_similarity_texts(text1, text2, model_name: str = "bert-base-uncased")
 
 
 import language_tool_python
-tool = language_tool_python.LanguageTool('en-US', remote_server='http://localhost:8081')
+#tool = language_tool_python.LanguageTool('en-US', remote_server='http://localhost:8081')
+tool = language_tool_python.LanguageTool('en-US')
 
 #Terminal - languagetool-server
 
