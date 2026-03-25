@@ -1,4 +1,3 @@
-Core machine learning and deep learning libraries
 torch
 torchvision
 transformers
@@ -14,7 +13,6 @@ wordcloud
 matplotlib
 gradio
 
-Utility and visualization libraries
 torchinfo
 jupyter
 requests
