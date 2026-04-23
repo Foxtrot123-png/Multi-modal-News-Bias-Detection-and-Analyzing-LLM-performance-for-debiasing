@@ -1,77 +1,83 @@
-Multi-Modal Model for Biased News Classification and Debiasing  
+# Multi-Modal News Bias Detection & LLM Debiasing
 
-Overview  
+My MSc dissertation. The question I wanted to answer: can you train a model to spot bias in news articles — and then fix it?
 
-This project provides a deep learning–based system for detecting bias in news articles (text only model +multimodal model(text+ images)) and debiasing them using LLMs.  
+Turned out yes, mostly. Here's what I built and what I found.
 
-Text-only classifier → BERT fine-tuned on BABE dataset.  
+---
 
-Multimodal classifier → BERT (text) + ResNet-34 (images) with cross-attention.  
+## The idea
 
-Fusion model → Combines text-only and multimodal predictions using XGBoost for batch prediction or Concatenation for Single Values Prediction
+Most bias detection tools only look at words. But news bias isn't just about what you say — it's about how you frame it. The photo you pick. The headline you write. The quotes you include or leave out.
 
-LLM Debiasing → GPT-2 and GEMINI used to rewrite biased news into more neutral text.  
+So I built a system that looks at both text and images together. Then once it finds bias, it uses an LLM to rewrite the article in a more neutral way.
 
-Dashboard → FastAPI + Gradio app for on-the-fly bias detection.  
+---
 
-Datasets
+## What I built
 
-BABE → Text with expert-annotated bias labels.  
+**Text classifier** — fine-tuned BERT on the BABE dataset (expert-labelled news articles). Hit F1 of 0.82 which I was pretty happy with.
 
-GoodNews → NYT articles + images (for pretraining).  
-NewBiasDataset → Text + image pairs with bias labels (cleaned version: No_Corrupted_NBS.csv).  
+**Multi-modal classifier** — added ResNet-34 for images and connected them with a cross-attention layer so the model could weigh both signals together. F1 dropped to 0.65 — mainly because the dataset was too small for the multi-modal approach to really shine.
 
-Models & Files  
-  
-Text-only model → Babe_Dataset.ipynb  
+**Fusion model** — XGBoost combining both classifiers. Useful for batch analysis of large article sets.
 
-Multimodal model → News_Media_Dataset.ipynb  
+**LLM debiasing** — used GPT-2 and Gemini to rewrite biased articles. The goal was to keep all the facts but strip out the loaded framing. It worked better than I expected, especially Gemini.
 
-Fusion model → Fusion.ipynb  
+**Dashboard** — FastAPI + Gradio app where you can paste in an article and get a bias score plus a rewritten neutral version.
 
-LLM debiasing → LLMs.ipynb  
+---
 
-Dashboard → news_bias_app.py  
+## Results
 
-Saved models:  
+| Model | F1 |
+|-------|----|
+| BERT text-only | 0.82 |
+| BERT + ResNet multi-modal | 0.65 |
+| XGBoost fusion | 0.65 |
 
-BABE_fine_tuned_model.pt  
+The text model beat the multi-modal one — not because images don't matter but because I didn't have enough labelled image-text pairs to train it properly. With a bigger dataset I think multi-modal wins.
 
-fine_tuned_model_nbs.pt  
+---
 
-best_model_state.pt  
+## Stack
 
-Performance  
+BERT, ResNet-34, XGBoost, GPT-2, Gemini API, FastAPI, Gradio, PyTorch, HuggingFace
 
-Text-only (BERT) → F1 = 0.82  
+---
 
-Multimodal (BERT + ResNet) → F1 = 0.65  
+## Run it
 
-Fusion (XGBoost) → F1 = 0.65  
+```bash
+git clone https://github.com/Foxtrot123-png/Multi-modal-News-Bias-Detection-and-Analyzing-LLM-performance-for-debiasing
+cd Multi-modal-News-Bias-Detection-and-Analyzing-LLM-performance-for-debiasing
+pip install -r requirements.txt
 
-Installation
-git clone https://github.com/yourusername/news-bias-classifier.git  
-cd news-bias-classifier  
-pip install -r requirements.txt  
+# train
+jupyter notebook Babe_Dataset.ipynb
 
-Usage  
+# run dashboard
+python news_bias_app.py
+```
 
-Run notebooks for training:  
+---
 
-jupyter notebook Babe_Dataset.ipynb  
-jupyter notebook News_Media_Dataset.ipynb  
+## Honest reflections
 
+The multi-modal result was disappointing at first but it taught me something useful — cross-attention is only as good as the data you feed it. The architecture was right, the dataset was the constraint.
 
-Run dashboard:  
+The LLM debiasing part surprised me most. I expected it to hallucinate or lose facts. It mostly didn't. Gemini in particular was good at keeping the substance while changing the tone.
 
-python news_bias_app.py  
+If I were doing this again I'd spend 80% of the time on data collection and 20% on the model. Every problem I hit came back to data quality.
 
-Results & Conclusion  
+---
 
-Deep learning models effectively detect news bias.  
+## What's next
 
-Due to  limited dataset and computational power Multi Modal and ensembled performed bad
+Bigger dataset. Fine-tuned Gemini instead of prompting it. Video news clips eventually.
 
-LLMs moderately successful at debiasing while preserving grammar and content.  
+---
 
-FastAPI+Gradio app demonstrates practical deployment.  
+Built by Ritik R Mohapatra — ex-Deloitte, MSc Data Science Distinction, Herts 2025.
+
+[LinkedIn](https://www.linkedin.com/in/ritik-r-mohapatra) · [GitHub](https://github.com/Foxtrot123-png) · [Live project](https://ritik-ai-twin.streamlit.app/)
